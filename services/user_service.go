@@ -1,16 +1,13 @@
 package services
 
 import (
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 	"github.com/kornharem08/society-shop/repositories"
 	"golang.org/x/crypto/bcrypt"
-)
-
-const (
-	jwtSecret = "society"
 )
 
 type userService struct {
@@ -78,11 +75,12 @@ func (s *userService) Login(request LoginRequest) (*LoginResponse, error) {
 
 func CreateToken(email string) (Token, error) {
 	var msgToken Token
+	secretKey := os.Getenv("SECRET_KEY")
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["email"] = email
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-	t, err := token.SignedString([]byte(jwtSecret))
+	t, err := token.SignedString([]byte(secretKey))
 	if err != nil {
 		return msgToken, err
 	}
